@@ -1,9 +1,3 @@
-'''
-Bronnen:
-https://flask.palletsprojects.com/en/stable/
-Microsoft Copilot. (2024, November 11)
-
-'''
 from flask import Flask
 
 # Initialize the Flask application
