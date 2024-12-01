@@ -1,5 +1,6 @@
 # Bronnen:
 # https://pypi.org/project/hx711/
+'''
 import RPi.GPIO as GPIO
 from hx711 import HX711
 import time
@@ -54,3 +55,33 @@ except KeyboardInterrupt:
 
 finally:
     GPIO.cleanup()  # Always clean up GPIO in your scripts!
+'''
+
+
+import random
+import time
+
+# Initialize the weight of the spool (in grams)
+weight = 1000
+
+# Define the rate of filament usage per "printing cycle" (in grams)
+min_usage = 5  # Minimum grams used per cycle
+max_usage = 15  # Maximum grams used per cycle
+
+print("Starting filament consumption simulation...\n")
+while True:
+    print(f"Current spool weight: {weight:.2f} grams")
+    
+    # Simulate a random amount of filament used
+    filament_used = random.uniform(min_usage, max_usage)
+    
+    # Decrease the weight
+    weight -= filament_used
+    
+    # Check if the spool weight drops below 200 grams
+    if weight < 200:
+        print("The spool is low on filament. Resetting to a full spool...")
+        weight = 1000  # Reset to full spool
+    
+    # Wait for a short period to simulate time passing
+    time.sleep(10)
