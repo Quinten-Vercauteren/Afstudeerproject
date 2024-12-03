@@ -2,7 +2,7 @@
 # https://pypi.org/project/hx711/
 '''
 # Sources:
-# ChatGPT model: OpenAI GPT-4
+# ChatGPT model: OpenAI GPT-4 (03/12/2024)
 # HX711 Python library: https://github.com/tatobari/hx711py
 
 from hx711 import HX711

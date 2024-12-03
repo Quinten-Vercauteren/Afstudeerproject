@@ -1,5 +1,5 @@
 # Sources:
-# ChatGPT model: OpenAI GPT-4
+# ChatGPT model: OpenAI GPT-4 (03/12/2024)
 # OpenCV library: https://opencv.org/
 # NumPy library: https://numpy.org/
 
