@@ -37,5 +37,3 @@ def get_filament_weight():
             print("Error reading weight")
     except (KeyboardInterrupt, SystemExit):
         clean_and_exit()
-
-get_filament_weight()
