@@ -3,6 +3,7 @@
 # OpenCV library: https://opencv.org/
 # NumPy library: https://numpy.org/
 
+'''
 import cv2
 import numpy as np
 
@@ -31,3 +32,4 @@ def start_camera(camera_id=0):
     if not cap.isOpened():
         raise Exception("Kan camera niet openen!")
     return cap
+'''

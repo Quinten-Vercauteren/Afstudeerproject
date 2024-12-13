@@ -1,3 +1,4 @@
+import time
 import sys
 sys.path.insert(0, '/home/Octo/projectdir/Afstudeerproject/hx711py')
 from hx711 import HX711
@@ -25,15 +26,16 @@ def clean_and_exit():
     GPIO.cleanup()
     print("Bye!")
 
-'''
-Example of how to get the way 
-try:
+
+def get_filament_weight():
+    try:
         hx = setup_hx711()
-        while True:
-            weight = get_weight(hx)
-            if weight is not None:
-                print(f"Current weight: {weight}")
-            time.sleep(0.1)
+        weight = get_weight(hx)
+        if weight is not None:
+            print(f"Current weight: {weight}")
+        else:
+            print("Error reading weight")
     except (KeyboardInterrupt, SystemExit):
         clean_and_exit()
-'''
+
+get_filament_weight()

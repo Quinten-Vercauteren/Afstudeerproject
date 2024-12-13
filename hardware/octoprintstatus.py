@@ -25,4 +25,4 @@ def check_octoprint_status():
         print(f"[ERROR] OctoPrint niet bereikbaar: {e}")
         return None
 
-print(check_octoprint_status())
+check_octoprint_status()
