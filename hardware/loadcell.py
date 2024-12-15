@@ -4,12 +4,22 @@ sys.path.insert(0, '/home/Octo/projectdir/Afstudeerproject/hx711py')
 from hx711 import HX711
 import RPi.GPIO as GPIO
 
-def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1624):
+hx = None
+
+def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1933):
+    global hx
     hx = HX711(data_pin, clock_pin)
     hx.set_reading_format("MSB", "MSB")
     hx.set_reference_unit(reference_unit)
     hx.reset()
+    hx.tare()
     return hx
+
+def reinit_hx711():
+    global hx
+    hx.reset()
+    hx.tare()
+    print("HX711 reinitialized and tared.")
 
 def get_weight(hx, num_readings=5):
     try:
@@ -29,7 +39,6 @@ def clean_and_exit():
 
 def get_filament_weight():
     try:
-        hx = setup_hx711()
         weight = get_weight(hx)
         if weight is not None:
             print(f"Current weight: {weight}")
@@ -37,3 +46,7 @@ def get_filament_weight():
             print("Error reading weight")
     except (KeyboardInterrupt, SystemExit):
         clean_and_exit()
+
+hx = setup_hx711()
+time.sleep(1)
+get_filament_weight()

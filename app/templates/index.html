@@ -4,8 +4,79 @@
     <meta charset="UTF-8">
     <title>3D Printer Monitor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to the 3D Printer Monitor</h1>
+    <div class="account-center">
+        <p>Logged in as: Guest</p>
+        <form action="{{ url_for('logout') }}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h1>3D Printer Control Panel</h1>
+        
+        <div class="grid">
+            <div class="printer-section">
+                <h2>Printer Status</h2>
+                <p id="printer-status">Loading...</p>
+                
+                <h2>Printer Controls</h2>
+                <form action="{{ url_for('start_printer') }}" method="post">
+                    <button type="submit">Start Printer</button>
+                </form>
+                <form action="{{ url_for('stop_printer') }}" method="post">
+                    <button type="submit">Stop Printer</button>
+                </form>
+            </div>
+            
+            <div class="camera-section">
+                <h2>Camera</h2>
+                <iframe id="camera-stream" src="http://octoproject.local/webcam/?action=stream" width="640" height="480" frameborder="0" allowfullscreen style="display: none;"></iframe>
+                <button id="toggle-stream" onclick="toggleStream()">Turn Stream On</button>
+                
+                <div class="filament-section">
+                    <h2>Filament Weight</h2>
+                    <p id="filament-weight">Loading...</p>
+                    
+                    <h2>HX711 Controls</h2>
+                    <form action="{{ url_for('reinit_hx711_route') }}" method="post">
+                        <button type="submit">Reinitialize and Tare HX711</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function fetchPrinterStatus() {
+            fetch('/printer_status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('printer-status').innerText = data.status;
+                })
+                .catch(error => console.error('Error fetching printer status:', error));
+        }
+
+        function toggleStream() {
+            const stream = document.getElementById('camera-stream');
+            const button = document.getElementById('toggle-stream');
+            if (stream.style.display === 'none') {
+                stream.style.display = 'block';
+                button.innerText = 'Turn Stream Off';
+            } else {
+                stream.style.display = 'none';
+                button.innerText = 'Turn Stream On';
+            }
+        }
+
+        // Fetch printer status every 5 seconds
+        setInterval(fetchPrinterStatus, 5000);
+
+        // Initial fetch
+        fetchPrinterStatus();
+    </script>
 </body>
 </html>
