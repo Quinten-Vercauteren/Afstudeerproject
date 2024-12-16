@@ -18,7 +18,23 @@
     <div class="container">
         <h1>3D Printer Control Panel</h1>
         
+        <div class="camera-section">
+            <h2>Camera</h2>
+            <iframe id="camera-stream" src="http://octoproject.local/webcam/?action=stream" width="100%" height="480" frameborder="0" allowfullscreen style="display: none;"></iframe>
+            <button id="toggle-stream" onclick="toggleStream()">Turn Stream On</button>
+        </div>
+        
         <div class="grid">
+            <div class="filament-section">
+                <h2>Filament Weight</h2>
+                <p id="filament-weight">Loading...</p>
+                
+                <h2>HX711 Controls</h2>
+                <form action="{{ url_for('reinit_hx711_route') }}" method="post">
+                    <button type="submit">Reinitialize and Tare HX711</button>
+                </form>
+            </div>
+            
             <div class="printer-section">
                 <h2>Printer Status</h2>
                 <p id="printer-status">Loading...</p>
@@ -30,22 +46,6 @@
                 <form action="{{ url_for('stop_printer') }}" method="post">
                     <button type="submit">Stop Printer</button>
                 </form>
-            </div>
-            
-            <div class="camera-section">
-                <h2>Camera</h2>
-                <iframe id="camera-stream" src="http://octoproject.local/webcam/?action=stream" width="640" height="480" frameborder="0" allowfullscreen style="display: none;"></iframe>
-                <button id="toggle-stream" onclick="toggleStream()">Turn Stream On</button>
-                
-                <div class="filament-section">
-                    <h2>Filament Weight</h2>
-                    <p id="filament-weight">Loading...</p>
-                    
-                    <h2>HX711 Controls</h2>
-                    <form action="{{ url_for('reinit_hx711_route') }}" method="post">
-                        <button type="submit">Reinitialize and Tare HX711</button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
