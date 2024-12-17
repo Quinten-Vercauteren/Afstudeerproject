@@ -38,7 +38,7 @@ h2 {
 /* Grid layout styles */
 .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr; /* Change to four columns */
     gap: 30px;
 }
 
@@ -47,6 +47,19 @@ h2 {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.camera-section {
+    grid-column: 1 / span 4; /* Span all four columns */
+}
+
+.printer-section {
+    grid-column: span 2; /* Span two columns each */
+    grid-row: 1;
+}
+
+.filament-section {
+    grid-column: span 2; /* Span two columns each */
 }
 
 /* Account center styles */
@@ -126,4 +139,21 @@ input[type="text"], input[type="password"] {
     font-size: 16px;
     background-color: #2e2e3e;
     color: #e0e0e0;
+}
+
+/* Camera container styles */
+.camera-container {
+    position: relative;
+    padding-bottom: 75%; /* Increase the height to make the camera div bigger */
+    height: 0;
+    overflow: hidden;
+}
+
+.camera-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
 }
