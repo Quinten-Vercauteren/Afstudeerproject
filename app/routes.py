@@ -1,8 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from hardware.loadcell import reinit_hx711
-from app import app
+from hardware.Camera import Camera
 
+app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key
+camera = Camera()
 
 @app.route('/')
 def index():
@@ -48,3 +50,11 @@ def capture_image():
     print("Capture image button pressed")
     # Placeholder for capturing image functionality
     return redirect(url_for('index'))
+
+@app.route('/motion_status')
+def motion_status():
+    camera.detect_motion()
+    return jsonify({'motion_detected': camera.is_motion_detected()})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
