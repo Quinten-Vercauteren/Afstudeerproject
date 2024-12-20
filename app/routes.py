@@ -57,4 +57,4 @@ def motion_status():
     return jsonify({'motion_detected': camera.is_motion_detected()})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)
