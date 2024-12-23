@@ -4,6 +4,8 @@ sys.path.insert(0, '/home/Octo/projectdir/Afstudeerproject/hx711py')
 from hx711 import HX711
 import RPi.GPIO as GPIO
 
+GPIO.setwarnings(False)  # Suppress GPIO warnings
+
 hx = None
 
 def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1933):

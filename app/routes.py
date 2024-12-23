@@ -1,10 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from hardware.loadcell import reinit_hx711
-from hardware.Camera import Camera
+from hardware.camera import Camera  # Import the updated camera module
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key
-camera = Camera()
+camera = Camera(stream_url="http://octoproject.local/webcam/?action=stream")  # Initialize with stream URL
 
 @app.route('/')
 def index():
@@ -48,7 +48,7 @@ def stop_printer():
 @app.route('/capture_image', methods=['POST'])
 def capture_image():
     print("Capture image button pressed")
-    # Placeholder for capturing image functionality
+    camera.capture_image()  # Capture image functionality
     return redirect(url_for('index'))
 
 @app.route('/motion_status')

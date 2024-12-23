@@ -17,6 +17,12 @@ def check_octoprint_status():
         response.raise_for_status()
         data = response.json()
         return data["state"]["text"]  # Bijv. "Printing", "Operational", etc.
+    except requests.HTTPError as e:
+        if e.response.status_code == 409:
+            print(f"[ERROR] OctoPrint conflict: {e}")
+        else:
+            print(f"[ERROR] OctoPrint HTTP error: {e}")
+        return None
     except requests.RequestException as e:
         print(f"[ERROR] OctoPrint niet bereikbaar: {e}")
         return None
