@@ -1,6 +1,3 @@
-# Sources:
-# ChatGPT model: OpenAI GPT-4 (03/12/2024)
-
 import cv2
 import numpy as np
 import time
@@ -12,58 +9,13 @@ class Camera:
         if not self.camera.isOpened():
             print(f"Error: Camera stream at {self.stream_url} could not be opened.")
         self.motion_detected = False
-        self.motion_start_time = None
-        self.bg_subtractor = cv2.createBackgroundSubtractorMOG2(detectShadows=False)
 
-    def detect_motion(self):
+    def capture_frame(self):
         ret, frame = self.camera.read()
         if not ret:
             print("Error: Failed to capture frame.")
-            return False
-        
-        # Apply background subtraction
-        fg_mask = self.bg_subtractor.apply(frame)
-        
-        # Threshold the foreground mask to create a binary image
-        _, thresh = cv2.threshold(fg_mask, 25, 255, cv2.THRESH_BINARY)
-        
-        # Dilate the binary image to fill in gaps
-        dilated = cv2.dilate(thresh, None, iterations=2)
-        
-        # Find contours in the dilated image
-        contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        # Check the areas of the contours to detect motion
-        motion_detected = False
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            print(f"Contour area: {area}")
-            if area < 500:
-                continue
-            motion_detected = True
-            break
-        
-        if motion_detected:
-            if not self.motion_detected:
-                self.motion_start_time = time.time()
-            self.motion_detected = True
-        else:
-            self.motion_detected = False
-            self.motion_start_time = None
-
-        return self.motion_detected
-
-    def is_motion_detected(self):
-        return self.motion_detected
-
-    def capture_image(self):
-        ret, frame = self.camera.read()
-        if ret:
-            filename = f"capture_{int(time.time())}.jpg"
-            cv2.imwrite(filename, frame)
-            print(f"Image captured: {filename}")
-        else:
-            print("Error: Failed to capture image.")
+            return None
+        return frame
 
     def release(self):
         self.camera.release()
@@ -72,26 +24,46 @@ class Camera:
 if __name__ == "__main__":
     stream_url = "http://octoproject.local/webcam/?action=stream"  # Replace with your OctoPrint stream URL
     camera = Camera(stream_url=stream_url)
-    if camera.camera.isOpened():
-        print(f"Camera stream at {stream_url} opened successfully.")
-        try:
-            last_print_time = time.time()
-            while True:
-                motion_detected = camera.detect_motion()
-                current_time = time.time()
-                if motion_detected:
-                    if camera.motion_start_time and (current_time - camera.motion_start_time) > 1:
-                        print("Motion detected!")
-                else:
-                    if (current_time - last_print_time) > 10:
-                        print("Waiting for motion")
-                        last_print_time = current_time
-                time.sleep(1)  # Wait for 1 second before checking again
-        except KeyboardInterrupt:
-            print("Motion detection stopped.")
-        finally:
-            camera.release()
-    else:
-        print(f"Camera stream at {stream_url} could not be opened.")
+    frame_width = int(camera.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(camera.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*"X264")
+    path = "Detected_Motion.MP4"
+    out = cv2.VideoWriter(path, fourcc, 30, (frame_width, frame_height))
 
+    try:
+        done, CurrentFrame = camera.camera.read()
+        done, NextFrame = camera.camera.read()
 
+        while camera.camera.isOpened():
+            if done:
+                diff = cv2.absdiff(CurrentFrame, NextFrame)
+                gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+                blured_img = cv2.GaussianBlur(gray, (5, 5), 0)
+                threshold, binary_img = cv2.threshold(blured_img, 35, 255, cv2.THRESH_BINARY)
+                dilated = cv2.dilate(binary_img, None, iterations=12)
+                contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+                for contour in contours:
+                    (x, y, w, h) = cv2.boundingRect(contour)
+                    area = cv2.contourArea(contour)
+                    print(f"Contour at x:{x}, y:{y}, width:{w}, height:{h}, area:{area}")
+                    if area >= 1000:
+                        cv2.rectangle(CurrentFrame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+                # Log frame processing instead of displaying it
+                print("Processed a frame with contours.")
+
+                out.write(CurrentFrame)
+                CurrentFrame = NextFrame
+                done, NextFrame = camera.camera.read()
+
+                if cv2.waitKey(30) == ord("g"):
+                    break
+            else:
+                break
+    except KeyboardInterrupt:
+        print("Motion detection stopped.")
+    finally:
+        camera.release()
+        out.release()
+        cv2.destroyAllWindows()
