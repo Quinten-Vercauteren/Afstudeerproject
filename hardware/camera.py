@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
 import time
-# from flask import Flask, jsonify
-
-# app = Flask(__name__)
 
 class Camera:
     def __init__(self, stream_url):
@@ -24,66 +21,96 @@ class Camera:
         self.camera.release()
         cv2.destroyAllWindows()
 
+
+# Global variables
 camera_state = "inactive"
 motion_count = 0
 no_motion_start_time = None
 motion_start_time = None
+state_cooldown = 5  # Cooldown time in seconds
+
 
 def update_camera_state():
     global camera_state, motion_count, no_motion_start_time, motion_start_time
 
-    stream_url = "http://octoproject.local/webcam/?action=stream"  # Replace with your OctoPrint stream URL
+    stream_url = "http://octoproject.local/webcam/?action=stream"
     camera = Camera(stream_url=stream_url)
+
     frame_width = int(camera.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(camera.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fourcc = cv2.VideoWriter_fourcc(*"X264")
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Use a compatible codec
     path = "Detected_Motion.MP4"
     out = cv2.VideoWriter(path, fourcc, 30, (frame_width, frame_height))
 
+    last_state_change_time = time.time()
     last_print_time = time.time()
 
     try:
-        done, CurrentFrame = camera.camera.read()
-        done, NextFrame = camera.camera.read()
+        # Initialize frames
+        ret, CurrentFrame = camera.camera.read()
+        ret, NextFrame = camera.camera.read()
 
         while camera.camera.isOpened():
-            if done:
+            if ret:
+                # Calculate frame difference
                 diff = cv2.absdiff(CurrentFrame, NextFrame)
                 gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
                 blured_img = cv2.GaussianBlur(gray, (5, 5), 0)
-                threshold, binary_img = cv2.threshold(blured_img, 35, 255, cv2.THRESH_BINARY)
-                dilated = cv2.dilate(binary_img, None, iterations=12)
-                contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                _, binary_img = cv2.threshold(blured_img, 25, 255, cv2.THRESH_BINARY)
+                dilated = cv2.dilate(binary_img, None, iterations=8)
+                contours, _ = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
                 motion_detected = False
                 for contour in contours:
-                    (x, y, w, h) = cv2.boundingRect(contour)
-                    area = cv2.contourArea(contour)
-                    if area >= 500:
+                    if cv2.contourArea(contour) >= 300:
                         motion_detected = True
+                        break
 
+                # Motion logic
+                current_time = time.time()
                 if motion_detected:
                     if motion_start_time is None:
-                        motion_start_time = time.time()
+                        motion_start_time = current_time
                     motion_count += 1
                     no_motion_start_time = None
-                else:
+                    #print(f"Motion detected: {motion_count} times at {current_time:.2f}")
+                elif not motion_detected:
                     if no_motion_start_time is None:
-                        no_motion_start_time = time.time()
+                        no_motion_start_time = current_time
+                    motion_start_time = None
+                    #print(f"No motion detected for {current_time - no_motion_start_time:.2f} seconds")
 
-                if motion_count >= 4 and (time.time() - motion_start_time) <= 2:
+                # State transitions
+                if (
+                    motion_count >= 3
+                    and motion_start_time is not None
+                    and (current_time - motion_start_time) <= 2
+                    and camera_state != "printing"
+                ):
                     camera_state = "printing"
                     motion_count = 0
                     motion_start_time = None
-                elif no_motion_start_time and (time.time() - no_motion_start_time) >= 30:
+                    last_state_change_time = current_time
+                    print(f"State changed to: printing at {current_time}")
+
+                elif (
+                    no_motion_start_time
+                    and (current_time - no_motion_start_time) >= 30
+                    and (current_time - last_state_change_time) >= state_cooldown
+                    and camera_state != "inactive"
+                ):
                     camera_state = "inactive"
                     motion_count = 0
                     no_motion_start_time = None
+                    last_state_change_time = current_time
+                    print(f"State changed to: inactive at {current_time}")
 
+                # Save current frame to output
                 out.write(CurrentFrame)
                 CurrentFrame = NextFrame
-                done, NextFrame = camera.camera.read()
+                ret, NextFrame = camera.camera.read()
 
+                # Key press to exit
                 if cv2.waitKey(30) == ord("g"):
                     break
 
@@ -92,6 +119,7 @@ def update_camera_state():
                     print(f"Current state: {camera_state}")
                     last_print_time = time.time()
             else:
+                print("Failed to read frame from camera.")
                 break
     except KeyboardInterrupt:
         print("Motion detection stopped.")
@@ -100,13 +128,6 @@ def update_camera_state():
         out.release()
         cv2.destroyAllWindows()
 
-# @app.route('/printer_state', methods=['GET'])
-# def get_printer_state():
-#     return jsonify({"state": camera_state})
 
 if __name__ == "__main__":
-    # from threading import Thread
-    # camera_thread = Thread(target=update_camera_state)
-    # camera_thread.start()
-    # app.run(host='0.0.0.0', port=5002)
     update_camera_state()
