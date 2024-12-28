@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from hardware.loadcell import reinit_hx711
-from hardware.camera import Camera  # Import the updated camera module
+from hardware.camera import Camera, update_camera_state  # Import the updated camera module
+import threading
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key
@@ -45,16 +46,6 @@ def stop_printer():
     print("Stop button pressed")
     return redirect(url_for('index'))
 
-@app.route('/capture_image', methods=['POST'])
-def capture_image():
-    print("Capture image button pressed")
-    camera.capture_image()  # Capture image functionality
-    return redirect(url_for('index'))
-
-@app.route('/motion_status')
-def motion_status():
-    camera.detect_motion()
-    return jsonify({'motion_detected': camera.is_motion_detected()})
-
 if __name__ == '__main__':
+    threading.Thread(target=update_camera_state, daemon=True).start()  # Start camera state update
     app.run(host='0.0.0.0', port=5001)

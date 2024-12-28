@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+import os
 
 class Camera:
     def __init__(self, stream_url):
@@ -28,6 +29,12 @@ motion_count = 0
 no_motion_start_time = None
 motion_start_time = None
 state_cooldown = 5  # Cooldown time in seconds
+state_file_path = "/tmp/printer_state.txt"  # Path to the temporary file
+
+# Ensure the state file exists
+if not os.path.exists(state_file_path):
+    with open(state_file_path, "w") as state_file:
+        state_file.write(camera_state)
 
 
 def update_camera_state():
@@ -62,7 +69,7 @@ def update_camera_state():
 
                 motion_detected = False
                 for contour in contours:
-                    if cv2.contourArea(contour) >= 300:
+                    if cv2.contourArea(contour) >= 500:
                         motion_detected = True
                         break
 
@@ -73,12 +80,10 @@ def update_camera_state():
                         motion_start_time = current_time
                     motion_count += 1
                     no_motion_start_time = None
-                    #print(f"Motion detected: {motion_count} times at {current_time:.2f}")
                 elif not motion_detected:
                     if no_motion_start_time is None:
                         no_motion_start_time = current_time
                     motion_start_time = None
-                    #print(f"No motion detected for {current_time - no_motion_start_time:.2f} seconds")
 
                 # State transitions
                 if (
@@ -91,7 +96,7 @@ def update_camera_state():
                     motion_count = 0
                     motion_start_time = None
                     last_state_change_time = current_time
-                    print(f"State changed to: printing at {current_time}")
+                    print(f"State changed to printing")
 
                 elif (
                     no_motion_start_time
@@ -103,7 +108,11 @@ def update_camera_state():
                     motion_count = 0
                     no_motion_start_time = None
                     last_state_change_time = current_time
-                    print(f"State changed to: inactive at {current_time}")
+                    print(f"State changed to inactive")
+
+                # Write the current state to the temporary file
+                with open(state_file_path, "w") as state_file:
+                    state_file.write(camera_state)
 
                 # Save current frame to output
                 out.write(CurrentFrame)
