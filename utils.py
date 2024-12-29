@@ -2,9 +2,9 @@
 # ChatGPT model: OpenAI GPT-4 (03/12/2024)
 # Python datetime module: https://docs.python.org/3/library/datetime.html
 
-from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def log_event(message):
-    """Log een gebeurtenis met timestamp."""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] {message}")
+    logging.info(message)

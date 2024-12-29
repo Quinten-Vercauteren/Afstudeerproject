@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 import os
+from hardware import get_filament_weight  # Import the function to get filament weight
 
 class Camera:
     def __init__(self, stream_url):
@@ -24,7 +25,7 @@ class Camera:
 
 
 # Global variables
-camera_state = "inactive"
+camera_state = "Inactive"
 motion_count = 0
 no_motion_start_time = None
 motion_start_time = None
@@ -69,8 +70,10 @@ def update_camera_state():
 
                 motion_detected = False
                 for contour in contours:
-                    if cv2.contourArea(contour) >= 500:
+                    contour_area = cv2.contourArea(contour)
+                    if contour_area >= 500:
                         motion_detected = True
+                        print(f"Detected motion with contour area: {contour_area}")
                         break
 
                 # Motion logic
@@ -90,25 +93,27 @@ def update_camera_state():
                     motion_count >= 3
                     and motion_start_time is not None
                     and (current_time - motion_start_time) <= 2
-                    and camera_state != "printing"
+                    and camera_state != "Printing"
                 ):
-                    camera_state = "printing"
+                    camera_state = "Printing"
                     motion_count = 0
                     motion_start_time = None
                     last_state_change_time = current_time
-                    print(f"State changed to printing")
+                    weight = get_filament_weight()  # Get the current weight
+                    print(f"State changed to Printing due to detected motion in the last 2 seconds. Number of contours: {len(contours)}. Current weight: {weight} grams")
 
                 elif (
                     no_motion_start_time
-                    and (current_time - no_motion_start_time) >= 30
+                    and (current_time - no_motion_start_time) >= 60
                     and (current_time - last_state_change_time) >= state_cooldown
-                    and camera_state != "inactive"
+                    and camera_state != "Inactive"
                 ):
-                    camera_state = "inactive"
+                    camera_state = "Inactive"
                     motion_count = 0
                     no_motion_start_time = None
                     last_state_change_time = current_time
-                    print(f"State changed to inactive")
+                    weight = get_filament_weight()  # Get the current weight
+                    print(f"State changed to Inactive due to no motion detected for 30 seconds. Current weight: {weight} grams")
 
                 # Write the current state to the temporary file
                 with open(state_file_path, "w") as state_file:

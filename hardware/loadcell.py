@@ -38,16 +38,18 @@ def clean_and_exit():
     GPIO.cleanup()
     print("Bye!")
 
-
 def get_filament_weight():
     try:
         weight = get_weight(hx)
         if weight is not None:
             print(f"Current weight: {weight}")
+            return weight
         else:
             print("Error reading weight")
+            return None
     except (KeyboardInterrupt, SystemExit):
         clean_and_exit()
+        return None
 
 hx = setup_hx711()
 time.sleep(1)

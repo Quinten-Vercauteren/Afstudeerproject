@@ -6,7 +6,7 @@
 # OctoPrint API documentation: https://docs.octoprint.org/en/master/api/printer.html
 
 from flask import Flask, jsonify
-from app.routes import app  # Import app from app/routes.py
+from app.routes import app, servicing  # Import app and servicing flag from app/routes.py
 from hardware import get_filament_weight, check_octoprint_status
 from utils import log_event
 import threading
@@ -44,31 +44,35 @@ def monitor_hardware():
 
     try:
         while True:
-            if use_octoprint:
-                status = check_octoprint_status()
-                if status:
-                    log_event(f"OctoPrint status: {status}")
-                    printer_status["status"] = status
-                    if status.lower() == "printing":
-                        log_event("Printer started!")
-                        weight = get_filament_weight()
-                        log_event(f"Filament weight at start: {weight} grams")
-                    elif status.lower() == "operational" or status.lower() == "error":
-                        log_event("Printer stopped!")
-                        weight = get_filament_weight()
-                        log_event(f"Filament weight at stop: {weight} grams")
-                else:
-                    printer_status["status"] = "unknown"
+            if servicing:
+                printer_status["status"] = "Servicing"
+                log_event("Printer is in servicing mode.")
             else:
-                try:
-                    with open(state_file_path, "r") as state_file:
-                        state = state_file.read().strip()
-                    printer_status["status"] = state
-                except FileNotFoundError:
-                    printer_status["status"] = "unknown"
-                except Exception as e:
-                    log_event(f"Error reading state file: {str(e)}")
-                    printer_status["status"] = "unknown"
+                if use_octoprint:
+                    status = check_octoprint_status()
+                    if status:
+                        log_event(f"OctoPrint status: {status}")
+                        printer_status["status"] = status
+                        if status.lower() == "printing":
+                            log_event("Printer started!")
+                            weight = get_filament_weight()
+                            log_event(f"Filament weight at start: {weight} grams")
+                        elif status.lower() == "operational" or status.lower() == "error":
+                            log_event("Printer stopped!")
+                            weight = get_filament_weight()
+                            log_event(f"Filament weight at stop: {weight} grams")
+                    else:
+                        printer_status["status"] = "Unknown"
+                else:
+                    try:
+                        with open(state_file_path, "r") as state_file:
+                            state = state_file.read().strip()
+                        printer_status["status"] = state.capitalize()  # Ensure consistent capitalization
+                    except FileNotFoundError:
+                        printer_status["status"] = "Unknown"
+                    except Exception as e:
+                        log_event(f"Error reading state file: {str(e)}")
+                        printer_status["status"] = "Unknown"
             time.sleep(5)
     except KeyboardInterrupt:
         log_event("Hardware monitoring stopped by user.")
@@ -76,7 +80,8 @@ def monitor_hardware():
 def periodic_octoprint_check():
     """Periodically check if OctoPrint is available."""
     while True:
-        check_octoprint_connection()
+        if not servicing:
+            check_octoprint_connection()
         time.sleep(600)  # Check every 10 minutes
 
 @app.route('/octoprint_status', methods=['GET'])
@@ -92,6 +97,19 @@ def get_camera_state():
     except FileNotFoundError:
         return jsonify({"state": "unknown"}), 404
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/filament_weight', methods=['GET'])
+def get_filament_weight_route():
+    try:
+        weight = get_filament_weight()
+        if weight is not None:
+            return jsonify({"weight": weight})
+        else:
+            log_event("Failed to retrieve weight: weight is None")
+            return jsonify({"error": "Failed to retrieve weight"}), 500
+    except Exception as e:
+        log_event(f"Exception in get_filament_weight_route: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
