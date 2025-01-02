@@ -25,33 +25,17 @@ class Camera:
 
 
 # Global variables
-camera_state = "Inactive"
+camera_motion_detected = False
 motion_count = 0
 no_motion_start_time = None
 motion_start_time = None
 state_cooldown = 5  # Cooldown time in seconds
-state_file_path = "/tmp/printer_state.txt"  # Path to the temporary file
-
-# Ensure the state file exists
-if not os.path.exists(state_file_path):
-    with open(state_file_path, "w") as state_file:
-        state_file.write(camera_state)
-
 
 def update_camera_state():
-    global camera_state, motion_count, no_motion_start_time, motion_start_time
+    global camera_motion_detected, motion_count, no_motion_start_time, motion_start_time
 
     stream_url = "http://octoproject.local/webcam/?action=stream"
     camera = Camera(stream_url=stream_url)
-
-    frame_width = int(camera.camera.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(camera.camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Use a compatible codec
-    path = "Detected_Motion.MP4"
-    out = cv2.VideoWriter(path, fourcc, 30, (frame_width, frame_height))
-
-    last_state_change_time = time.time()
-    last_print_time = time.time()
 
     try:
         # Initialize frames
@@ -71,7 +55,7 @@ def update_camera_state():
                 motion_detected = False
                 for contour in contours:
                     contour_area = cv2.contourArea(contour)
-                    if contour_area >= 500:
+                    if contour_area >= 600:
                         motion_detected = True
                         print(f"Detected motion with contour area: {contour_area}")
                         break
@@ -88,50 +72,30 @@ def update_camera_state():
                         no_motion_start_time = current_time
                     motion_start_time = None
 
-                # State transitions
+                # Update shared variable
                 if (
                     motion_count >= 3
                     and motion_start_time is not None
                     and (current_time - motion_start_time) <= 2
-                    and camera_state != "Printing"
                 ):
-                    camera_state = "Printing"
+                    camera_motion_detected = True
                     motion_count = 0
                     motion_start_time = None
-                    last_state_change_time = current_time
-                    weight = get_filament_weight()  # Get the current weight
-                    print(f"State changed to Printing due to detected motion in the last 2 seconds. Number of contours: {len(contours)}. Current weight: {weight} grams")
-
                 elif (
                     no_motion_start_time
                     and (current_time - no_motion_start_time) >= 60
-                    and (current_time - last_state_change_time) >= state_cooldown
-                    and camera_state != "Inactive"
                 ):
-                    camera_state = "Inactive"
+                    camera_motion_detected = False
                     motion_count = 0
                     no_motion_start_time = None
-                    last_state_change_time = current_time
-                    weight = get_filament_weight()  # Get the current weight
-                    print(f"State changed to Inactive due to no motion detected for 30 seconds. Current weight: {weight} grams")
-
-                # Write the current state to the temporary file
-                with open(state_file_path, "w") as state_file:
-                    state_file.write(camera_state)
 
                 # Save current frame to output
-                out.write(CurrentFrame)
                 CurrentFrame = NextFrame
                 ret, NextFrame = camera.camera.read()
 
                 # Key press to exit
                 if cv2.waitKey(30) == ord("g"):
                     break
-
-                # Print the state every 10 seconds
-                if time.time() - last_print_time >= 10:
-                    print(f"Current state: {camera_state}")
-                    last_print_time = time.time()
             else:
                 print("Failed to read frame from camera.")
                 break
@@ -139,7 +103,6 @@ def update_camera_state():
         print("Motion detection stopped.")
     finally:
         camera.release()
-        out.release()
         cv2.destroyAllWindows()
 
 

@@ -53,6 +53,16 @@ function toggleStream() {
     }
 }
 
+function toggleService() {
+    fetch('/service_printer', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            updateServiceButton();
+            fetchPrinterStatus();  // Update printer status immediately after toggling service state
+        })
+        .catch(error => console.error('Error toggling service state:', error));
+}
+
 function updateServiceButton() {
     fetch('/get_servicing_state')
         .then(response => response.json())

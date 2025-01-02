@@ -35,7 +35,7 @@
                 <div class="camera-container">
                     <iframe id="camera-stream" src="http://octoproject.local/webcam/?action=stream" allowfullscreen></iframe>
                 </div>
-                <button id="toggle-stream" onclick="toggleStream()">Turn Stream Off</button> <!-- Initial state is "Turn Stream Off" -->
+                <button id="toggle-stream" class="stream-button" onclick="toggleStream()">Turn Stream Off</button>
             </div>
             
             <div class="printer-section">
@@ -43,9 +43,7 @@
                 <p id="printer-status">Loading...</p>
                 
                 <h2>Printer Controls</h2>
-                <form action="{{ url_for('service_printer') }}" method="post">
-                    <button type="submit" id="service-button">{{ 'Stop Servicing' if servicing else 'Service Printer' }}</button>
-                </form>
+                <button id="service-button" class="service-button" onclick="toggleService()">Service Printer</button>
             </div>
         </div>
     </div>
