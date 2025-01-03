@@ -50,14 +50,10 @@ def reinit_hx711_route():
 @app.route('/service_printer', methods=['POST'])
 def service_printer():
     """Toggle the servicing state of the printer."""
-    global servicing, printer_status
+    global servicing
     servicing = not servicing  # Toggle servicing state
-    if servicing:
-        printer_status["status"] = "Servicing"
-    else:
-        printer_status["status"] = "Inactive"
     log_event(f"Servicing state toggled to: {servicing}")
-    return jsonify({"servicing": servicing})  # Return JSON response instead of redirecting
+    return redirect(url_for('index'))
 
 @app.route('/get_servicing_state', methods=['GET'])
 def get_servicing_state():

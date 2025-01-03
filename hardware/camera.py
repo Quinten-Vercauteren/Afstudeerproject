@@ -2,7 +2,12 @@ import cv2
 import numpy as np
 import time
 import os
-from hardware import get_filament_weight  # Import the function to get filament weight
+import sys
+
+# Add the parent directory to the system path to allow imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from hardware.loadcell import get_filament_weight  # Import the function to get filament weight
 
 class Camera:
     def __init__(self, stream_url):
@@ -29,7 +34,7 @@ camera_state = "Inactive"
 motion_count = 0
 no_motion_start_time = None
 motion_start_time = None
-state_cooldown = 5  # Cooldown time in seconds
+state_cooldown = 30  # Cooldown time in seconds
 state_file_path = "/tmp/printer_state.txt"  # Path to the temporary file
 camera_motion_detected = False  # Add this global variable
 

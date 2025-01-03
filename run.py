@@ -45,19 +45,12 @@ def monitor_hardware():
             if servicing:
                 printer_status["status"] = "Servicing"
                 log_event("Printer is in servicing mode.")
-                time.sleep(5)  # Sleep to avoid busy-waiting
-                continue  # Skip the rest of the loop if servicing
-
-            if camera_motion_detected:
+            elif camera_motion_detected:
                 printer_status["status"] = "Printing"
-                log_event("Printer started!")
-                weight = get_filament_weight()
-                log_event(f"Filament weight at start: {weight} grams")
+                log_event("Printer is printing.")
             else:
                 printer_status["status"] = "Inactive"
-                log_event("Printer stopped!")
-                weight = get_filament_weight()
-                log_event(f"Filament weight at stop: {weight} grams")
+                log_event("Printer is inactive.")
 
             log_event(f"Current state: {printer_status['status']}")
             time.sleep(5)
