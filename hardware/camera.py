@@ -31,6 +31,7 @@ no_motion_start_time = None
 motion_start_time = None
 state_cooldown = 5  # Cooldown time in seconds
 state_file_path = "/tmp/printer_state.txt"  # Path to the temporary file
+camera_motion_detected = False  # Add this global variable
 
 # Ensure the state file exists
 if not os.path.exists(state_file_path):
@@ -39,7 +40,7 @@ if not os.path.exists(state_file_path):
 
 
 def update_camera_state():
-    global camera_state, motion_count, no_motion_start_time, motion_start_time
+    global camera_state, motion_count, no_motion_start_time, motion_start_time, camera_motion_detected
 
     stream_url = "http://octoproject.local/webcam/?action=stream"
     camera = Camera(stream_url=stream_url)
@@ -79,11 +80,13 @@ def update_camera_state():
                 # Motion logic
                 current_time = time.time()
                 if motion_detected:
+                    camera_motion_detected = True  # Set camera_motion_detected = True when motion is found
                     if motion_start_time is None:
                         motion_start_time = current_time
                     motion_count += 1
                     no_motion_start_time = None
                 elif not motion_detected:
+                    camera_motion_detected = False  # Set camera_motion_detected = False otherwise
                     if no_motion_start_time is None:
                         no_motion_start_time = current_time
                     motion_start_time = None

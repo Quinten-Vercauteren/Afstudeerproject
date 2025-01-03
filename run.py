@@ -5,7 +5,6 @@
 # Flask documentation: https://flask.palletsprojects.com/
 # OctoPrint API documentation: https://docs.octoprint.org/en/master/api/printer.html
 
-from flask import Flask, jsonify
 from app.routes import app, servicing, printer_status  # Import app, servicing flag, and printer_status from app/routes.py
 from hardware import get_filament_weight, check_octoprint_status
 from utils import log_event
