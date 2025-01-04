@@ -3,11 +3,8 @@ import numpy as np
 import time
 import os
 import sys
-
-# Add the parent directory to the system path to allow imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from hardware.loadcell import get_filament_weight  # Import the function to get filament weight
+import threading
+import queue
 
 class Camera:
     def __init__(self, stream_url):
@@ -28,24 +25,16 @@ class Camera:
         self.camera.release()
         cv2.destroyAllWindows()
 
-
 # Global variables
-camera_state = "Inactive"
+camera_state_queue = queue.Queue()
 motion_count = 0
 no_motion_start_time = None
 motion_start_time = None
 state_cooldown = 30  # Cooldown time in seconds
-state_file_path = "/tmp/printer_state.txt"  # Path to the temporary file
 camera_motion_detected = False  # Add this global variable
 
-# Ensure the state file exists
-if not os.path.exists(state_file_path):
-    with open(state_file_path, "w") as state_file:
-        state_file.write(camera_state)
-
-
 def update_camera_state():
-    global camera_state, motion_count, no_motion_start_time, motion_start_time, camera_motion_detected
+    global motion_count, no_motion_start_time, motion_start_time, camera_motion_detected
 
     stream_url = "http://octoproject.local/webcam/?action=stream"
     camera = Camera(stream_url=stream_url)
@@ -77,9 +66,9 @@ def update_camera_state():
                 motion_detected = False
                 for contour in contours:
                     contour_area = cv2.contourArea(contour)
-                    if contour_area >= 500:
+                    if contour_area >= 400:
                         motion_detected = True
-                        print(f"Detected motion with contour area: {contour_area}")
+                        #print(f"Detected motion with contour area: {contour_area}")
                         break
 
                 # Motion logic
@@ -90,7 +79,7 @@ def update_camera_state():
                         motion_start_time = current_time
                     motion_count += 1
                     no_motion_start_time = None
-                elif not motion_detected:
+                else:
                     camera_motion_detected = False  # Set camera_motion_detected = False otherwise
                     if no_motion_start_time is None:
                         no_motion_start_time = current_time
@@ -101,31 +90,23 @@ def update_camera_state():
                     motion_count >= 3
                     and motion_start_time is not None
                     and (current_time - motion_start_time) <= 2
-                    and camera_state != "Printing"
                 ):
-                    camera_state = "Printing"
+                    camera_state_queue.put("Printing")
                     motion_count = 0
                     motion_start_time = None
                     last_state_change_time = current_time
-                    weight = get_filament_weight()  # Get the current weight
-                    print(f"State changed to Printing due to detected motion in the last 2 seconds. Number of contours: {len(contours)}. Current weight: {weight} grams")
+                    print(f"State changed to Printing due to detected motion in the last 2 seconds. Number of contours: {len(contours)}.")
 
                 elif (
                     no_motion_start_time
                     and (current_time - no_motion_start_time) >= 60
                     and (current_time - last_state_change_time) >= state_cooldown
-                    and camera_state != "Inactive"
                 ):
-                    camera_state = "Inactive"
+                    camera_state_queue.put("Inactive")
                     motion_count = 0
                     no_motion_start_time = None
                     last_state_change_time = current_time
-                    weight = get_filament_weight()  # Get the current weight
-                    print(f"State changed to Inactive due to no motion detected for 30 seconds. Current weight: {weight} grams")
-
-                # Write the current state to the temporary file
-                with open(state_file_path, "w") as state_file:
-                    state_file.write(camera_state)
+                    print(f"State changed to Inactive due to no motion detected for 30 seconds.")
 
                 # Save current frame to output
                 out.write(CurrentFrame)
@@ -138,7 +119,11 @@ def update_camera_state():
 
                 # Print the state every 10 seconds
                 if time.time() - last_print_time >= 10:
-                    print(f"Current state: {camera_state}")
+                    try:
+                        current_state = camera_state_queue.get_nowait()
+                        print(f"Current state: {current_state}")
+                    except queue.Empty:
+                        pass
                     last_print_time = time.time()
             else:
                 print("Failed to read frame from camera.")

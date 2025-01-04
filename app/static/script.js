@@ -1,28 +1,10 @@
 function fetchPrinterStatus() {
-    fetch('/octoprint_status')
+    fetch('/printer_status')
         .then(response => response.json())
         .then(data => {
             document.getElementById('printer-status').innerText = data.status;
         })
         .catch(error => console.error('Error fetching printer status:', error));
-}
-
-function fetchCameraState() {
-    fetch('/camera_state')
-        .then(response => response.json())
-        .then(data => {
-            let status;
-            if (data.state === 'Printing') {
-                status = 'Printing';
-            } else if (data.state === 'Servicing') {
-                status = 'Servicing';
-            } else {
-                status = 'Inactive';
-            }
-            document.getElementById('printer-status').innerText = status;
-            fetchFilamentWeight();  // Fetch the current weight when the state changes
-        })
-        .catch(error => console.error('Error fetching camera state:', error));
 }
 
 function fetchFilamentWeight() {

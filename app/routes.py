@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from hardware.loadcell import reinit_hx711, get_filament_weight  # Import get_filament_weight
-from hardware.camera import Camera, update_camera_state  # Import the updated camera module
+from hardware.camera import Camera, update_camera_state, camera_state_queue  # Import the updated camera module and camera_state_queue
 import threading
 from utils import log_event
 import os
@@ -12,7 +12,6 @@ camera = Camera(stream_url="http://octoproject.local/webcam/?action=stream")  # 
 # Global variables
 servicing = False
 printer_status = {"status": "unknown"}
-state_file_path = os.path.join(os.path.dirname(__file__), "printer_state.txt")  # Define the state file path
 
 @app.route('/')
 def index():
@@ -55,25 +54,12 @@ def service_printer():
     log_event(f"Servicing state toggled to: {servicing}")
     return redirect(url_for('index'))
 
-@app.route('/get_servicing_state', methods=['GET'])
-def get_servicing_state():
-    """Get the current servicing state."""
-    return jsonify({"servicing": servicing})
-
-@app.route('/octoprint_status', methods=['GET'])
-def get_octoprint_status():
-    """Get the current status of the printer from OctoPrint."""
-    return jsonify(printer_status)
-
-@app.route('/camera_state', methods=['GET'])
-def get_camera_state():
-    """Get the current state of the camera."""
+@app.route('/printer_status', methods=['GET'])
+def get_printer_status():
+    """Get the current state of the printer."""
     try:
-        with open(state_file_path, "r") as state_file:
-            state = state_file.read().strip()
-        return jsonify({"state": state})
-    except FileNotFoundError:
-        return jsonify({"state": "unknown"}), 404
+        # Return the global printer_status variable
+        return jsonify(printer_status)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -92,5 +78,4 @@ def get_filament_weight_route():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    threading.Thread(target=update_camera_state, daemon=True).start()  # Start camera state update
     app.run(host='0.0.0.0', port=5001)

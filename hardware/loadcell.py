@@ -59,4 +59,3 @@ def get_filament_weight():
 # Initialize the HX711 sensor on startup
 hx = setup_hx711()
 time.sleep(1)
-get_filament_weight()
