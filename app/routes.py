@@ -3,22 +3,21 @@ from hardware.loadcell import reinit_hx711, get_filament_weight  # Import get_fi
 from hardware.camera import Camera, update_camera_state, camera_state_queue  # Import the updated camera module and camera_state_queue
 import threading
 from utils import log_event
+from config import SECRET_KEY
 import os
+import app.shared_state as shared_state  # Import shared state module
+
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a real secret key
+app.secret_key = SECRET_KEY  # Replace with a real secret key
 camera = Camera(stream_url="http://octoproject.local/webcam/?action=stream")  # Initialize with stream URL
-
-# Global variables
-servicing = False
-printer_status = {"status": "unknown"}
 
 @app.route('/')
 def index():
     """Render the main control panel page."""
     if 'username' not in session:
         return redirect(url_for('login'))
-    return render_template('index.html', servicing=servicing)
+    return render_template('index.html', servicing=shared_state.servicing)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -48,10 +47,12 @@ def reinit_hx711_route():
 
 @app.route('/service_printer', methods=['POST'])
 def service_printer():
+    log_event(shared_state.servicing)
     """Toggle the servicing state of the printer."""
-    global servicing
-    servicing = not servicing  # Toggle servicing state
-    log_event(f"Servicing state toggled to: {servicing}")
+    shared_state.servicing = not shared_state.servicing  # Toggle servicing state
+    shared_state.printer_status["status"] = "Inactive"  # Reset printer status
+    log_event(f"Servicing state toggled to: {shared_state.servicing}")
+    log_event(shared_state.servicing)
     return redirect(url_for('index'))
 
 @app.route('/printer_status', methods=['GET'])
@@ -59,7 +60,7 @@ def get_printer_status():
     """Get the current state of the printer."""
     try:
         # Return the global printer_status variable
-        return jsonify(printer_status)
+        return jsonify(shared_state.printer_status)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -75,6 +76,14 @@ def get_filament_weight_route():
             return jsonify({"error": "Failed to retrieve weight"}), 500
     except Exception as e:
         log_event(f"Exception in get_filament_weight_route: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_servicing_state', methods=['GET'])
+def get_servicing_state():
+    """Get the current servicing state of the printer."""
+    try:
+        return jsonify({"servicing": shared_state.servicing})
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

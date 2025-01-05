@@ -61,11 +61,11 @@ function updateStreamButton() {
 
 // Fetch printer and camera state every 5 seconds
 setInterval(fetchPrinterStatus, 5000);
-setInterval(fetchCameraState, 5000);
-setInterval(updateServiceButton, 5000);  // Update the service button text every 5 seconds
+setInterval(updateServiceButton, 5000);
+setInterval(fetchFilamentWeight, 5000);
 
 // Initial fetch
 fetchPrinterStatus();
-fetchCameraState();
 updateServiceButton();
 updateStreamButton();
+fetchFilamentWeight()

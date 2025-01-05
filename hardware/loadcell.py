@@ -47,7 +47,6 @@ def get_filament_weight():
     try:
         weight = get_weight(hx)
         if weight is not None:
-            print(f"Current weight: {weight}")
             return weight
         else:
             print("Error reading weight")

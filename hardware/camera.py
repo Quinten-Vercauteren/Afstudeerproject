@@ -68,7 +68,6 @@ def update_camera_state():
                     contour_area = cv2.contourArea(contour)
                     if contour_area >= 400:
                         motion_detected = True
-                        #print(f"Detected motion with contour area: {contour_area}")
                         break
 
                 # Motion logic
