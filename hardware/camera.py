@@ -120,7 +120,6 @@ def update_camera_state():
                 if time.time() - last_print_time >= 10:
                     try:
                         current_state = camera_state_queue.get_nowait()
-                        print(f"Current state: {current_state}")
                     except queue.Empty:
                         pass
                     last_print_time = time.time()

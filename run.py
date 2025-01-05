@@ -47,7 +47,6 @@ def monitor_hardware():
     try:
         while True:
             print('---------------------------------------------------------------------------------------------')
-            log_event(shared_state.servicing)
             if shared_state.servicing:
                 shared_state.printer_status["status"] = "Servicing"
                 log_event("Printer is in servicing mode.")
@@ -60,7 +59,6 @@ def monitor_hardware():
                     shared_state.printer_status["status"] = "Unknown"
                     log_event("Failed to get OctoPrint status.")
             else:
-                log_event(shared_state.servicing)
                 try:
                     camera_state = camera_state_queue.get_nowait()
                     shared_state.printer_status["status"] = camera_state  # Use the global camera_state variable
@@ -68,9 +66,7 @@ def monitor_hardware():
                 except queue.Empty:
                     log_event("No new camera state available.")
                 log_event(f"Current state: {shared_state.printer_status['status']}")
-            log_event(shared_state.servicing)
             weight = get_filament_weight()  # Get the current weight
-            log_event(shared_state.servicing)
             log_event(f"Current filament weight: {weight} grams")
             
             time.sleep(5)
@@ -89,6 +85,6 @@ def periodic_octoprint_check():
 if __name__ == "__main__":
     check_octoprint_connection()  # Initial check on startup
     threading.Thread(target=monitor_hardware, daemon=True).start()
-    #threading.Thread(target=periodic_octoprint_check, daemon=True).start()
-    #threading.Thread(target=update_camera_state, daemon=True).start()  # Start camera state update
+    threading.Thread(target=periodic_octoprint_check, daemon=True).start()
+    threading.Thread(target=update_camera_state, daemon=True).start()  # Start camera state update
     app.run(host="0.0.0.0", port=5001, debug=True)
