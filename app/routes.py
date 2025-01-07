@@ -5,8 +5,9 @@ import threading
 from utils import log_event
 from config import SECRET_KEY
 import os
-import app.shared_state as shared_state  # Import shared state module
 from models import FilamentData, SessionLocal  # Import the FilamentData model and SessionLocal
+import shared_state
+from shared_state import get_printer_status, set_printer_status, get_servicing_state, toggle_servicing_state
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY  # Replace with a real secret key
@@ -20,7 +21,7 @@ def index():
     """Render the main control panel page."""
     if 'username' not in flask_session:
         return redirect(url_for('login'))
-    return render_template('index.html', servicing=shared_state.servicing)
+    return render_template('index.html', servicing=shared_state.get_servicing_state())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -50,20 +51,17 @@ def reinit_hx711_route():
 
 @app.route('/service_printer', methods=['POST'])
 def service_printer():
-    log_event(shared_state.servicing)
     """Toggle the servicing state of the printer."""
-    shared_state.servicing = not shared_state.servicing  # Toggle servicing state
-    shared_state.printer_status["status"] = "Inactive"  # Reset printer status
-    log_event(f"Servicing state toggled to: {shared_state.servicing}")
-    log_event(shared_state.servicing)
+    toggle_servicing_state()
+    set_printer_status({"status": "Inactive"})  # Reset printer status
+    log_event(f"Servicing state toggled to: {get_servicing_state()}")
     return redirect(url_for('index'))
 
 @app.route('/printer_status', methods=['GET'])
-def get_printer_status():
+def get_printer_status_route():
     """Get the current state of the printer."""
     try:
-        # Return the global printer_status variable
-        return jsonify(shared_state.printer_status)
+        return jsonify(get_printer_status())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -82,10 +80,10 @@ def get_filament_weight_route():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get_servicing_state', methods=['GET'])
-def get_servicing_state():
+def get_servicing_state_route():
     """Get the current servicing state of the printer."""
     try:
-        return jsonify({"servicing": shared_state.servicing})
+        return jsonify({"servicing": get_servicing_state()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
