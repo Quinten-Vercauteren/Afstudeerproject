@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, jsonify
+from flask import Flask, render_template, redirect, url_for, request, session as flask_session, jsonify
 from hardware.loadcell import reinit_hx711, get_filament_weight  # Import get_filament_weight
 from hardware.camera import Camera, update_camera_state, camera_state_queue  # Import the updated camera module and camera_state_queue
 import threading
@@ -6,16 +6,19 @@ from utils import log_event
 from config import SECRET_KEY
 import os
 import app.shared_state as shared_state  # Import shared state module
-
+from models import FilamentData, SessionLocal  # Import the FilamentData model and SessionLocal
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY  # Replace with a real secret key
 camera = Camera(stream_url="http://octoproject.local/webcam/?action=stream")  # Initialize with stream URL
 
+# Create a session
+db_session = SessionLocal()
+
 @app.route('/')
 def index():
     """Render the main control panel page."""
-    if 'username' not in session:
+    if 'username' not in flask_session:
         return redirect(url_for('login'))
     return render_template('index.html', servicing=shared_state.servicing)
 
@@ -27,7 +30,7 @@ def login():
         password = request.form['password']
         # Placeholder for actual authentication
         if username == 'admin' and password == 'password':
-            session['username'] = username
+            flask_session['username'] = username
             return redirect(url_for('index'))
         else:
             return 'Invalid credentials', 401
@@ -36,7 +39,7 @@ def login():
 @app.route('/logout', methods=['POST'])
 def logout():
     """Handle user logout."""
-    session.pop('username', None)
+    flask_session.pop('username', None)
     return redirect(url_for('login'))
 
 @app.route('/reinit_hx711', methods=['POST'])
