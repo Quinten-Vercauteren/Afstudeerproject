@@ -1,3 +1,5 @@
 venv/
 config.py
 /hardware/Detected_Motion.MP4
+Detected_Motion.MP4
+state.json

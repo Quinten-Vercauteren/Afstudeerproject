@@ -129,7 +129,7 @@ def monitor_hardware():
             
             db_trigger(current_status, printer_state)
             
-            time.sleep(20)
+            time.sleep(5)
     except KeyboardInterrupt:
         log_event("Hardware monitoring stopped by user.")
 
