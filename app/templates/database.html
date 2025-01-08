@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filament Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='database.css') }}">
+</head>
+<body>
+    <h1>Filament Data</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Time</th>
+                <th>Weight (grams)</th>
+                <th>Operation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in filament_data %}
+            <tr>
+                <td>{{ data.id }}</td>
+                <td>{{ data.time }}</td>
+                <td>{{ data.weight }}</td>
+                <td>{{ data.operation }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>

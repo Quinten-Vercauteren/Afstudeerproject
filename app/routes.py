@@ -87,5 +87,18 @@ def get_servicing_state_route():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/database')
+def database():
+    """Render the database page showing filament data."""
+    if 'username' not in flask_session:
+        return redirect(url_for('login'))
+    
+    # Retrieve all filament data from the database
+    session = SessionLocal()
+    filament_data = session.query(FilamentData).all()
+    session.close()
+    
+    return render_template('database.html', filament_data=filament_data)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

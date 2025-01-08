@@ -10,7 +10,7 @@ def read_state():
             with open(state_file, 'r') as file:
                 return json.load(file)
         except FileNotFoundError:
-            return {"printer_status": {"status": "Inactive"}, "servicing": False}
+            return {"printer_status": {"status": "Inactive"}, "servicing": False, "last_known_status": "Unknown"}
 
 def write_state(state):
     with state_lock:
@@ -33,4 +33,13 @@ def get_servicing_state():
 def toggle_servicing_state():
     state = read_state()
     state["servicing"] = not state["servicing"]
+    write_state(state)
+
+def get_last_known_status():
+    state = read_state()
+    return state.get("last_known_status", "Unknown")
+
+def set_last_known_status(status):
+    state = read_state()
+    state["last_known_status"] = status
     write_state(state)

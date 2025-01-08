@@ -1,0 +1,62 @@
+/* General styles */
+body {
+    margin: 0;  /* Reset margin */
+    font-family: 'Roboto', sans-serif;
+    background-color: #1e1e2f;
+    color: #e0e0e0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+h1 {
+    color: #ff9800;
+    text-align: center;
+    margin: 20px 0;  /* Adjust margin for spacing */
+    font-size: 2.5em;
+}
+
+h2 {
+    color: #ff9800;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+/* Table styles */
+table {
+    width: 80%;
+    border-collapse: collapse;
+    margin: auto;  /* Center the table */
+    background-color: #2e2e3e; /* Matches container background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Adjust shadow for the dark theme */
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #3e3e4e; /* Subtle border to match the theme */
+}
+
+th {
+    background-color: #3e3e4e; /* Darker shade for header */
+    color: #ff9800; /* Orange accent for text */
+}
+
+tr:hover {
+    background-color: #3e3e4e; /* Highlight with dark hover color */
+}
+
+/* Link styles */
+a {
+    color: #ff9800; /* Matches the orange accent */
+    text-decoration: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
