@@ -8,7 +8,8 @@ GPIO.setwarnings(False)  # Suppress GPIO warnings
 
 hx = None
 
-def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1933):
+
+def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1497):
     """Initialize the HX711 sensor."""
     global hx
     hx = HX711(data_pin, clock_pin)

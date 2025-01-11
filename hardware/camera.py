@@ -66,7 +66,7 @@ def update_camera_state():
                 motion_detected = False
                 for contour in contours:
                     contour_area = cv2.contourArea(contour)
-                    if contour_area >= 400:
+                    if contour_area >= 500:
                         motion_detected = True
                         break
 
@@ -98,14 +98,14 @@ def update_camera_state():
 
                 elif (
                     no_motion_start_time
-                    and (current_time - no_motion_start_time) >= 60
+                    and (current_time - no_motion_start_time) >= 40
                     and (current_time - last_state_change_time) >= state_cooldown
                 ):
                     camera_state_queue.put("Inactive")
                     motion_count = 0
                     no_motion_start_time = None
                     last_state_change_time = current_time
-                    print(f"State changed to Inactive due to no motion detected for 30 seconds.")
+                    print(f"State changed to Inactive due to no motion detected for 40 seconds.")
 
                 # Save current frame to output
                 out.write(CurrentFrame)

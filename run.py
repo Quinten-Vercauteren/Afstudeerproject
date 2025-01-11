@@ -107,11 +107,17 @@ def monitor_hardware():
                     set_printer_status({"status": "Servicing"})
                     log_event("Printer is in servicing mode.")
             elif use_octoprint:
+                #Printing from SD
                 octoprint_status = check_octoprint_status()
                 print(f"OctoPrint status: {octoprint_status}")
                 if octoprint_status and get_printer_status()["status"] != octoprint_status:
-                    set_printer_status({"status": octoprint_status})
-                    log_event(f"OctoPrint status: {octoprint_status}")
+                    if octoprint_status == "Printing" or octoprint_status == "Printing from SD":
+                        set_printer_status({"status": "Printing"})
+                        log_event(f"OctoPrint status: {octoprint_status}")
+                    else:
+                        set_printer_status({"status": "Inactive"})
+                        log_event("printer status set to Inactive")
+                        log_event(f"OctoPrint status: {octoprint_status}")
                 elif not octoprint_status and get_printer_status()["status"] != "Unknown":
                     set_printer_status({"status": "Unknown"})
                     log_event("Failed to get OctoPrint status.")
@@ -143,7 +149,7 @@ def periodic_octoprint_check():
             check_octoprint_connection()
         # Initialize the camera state queue with "Inactive"
         camera_state_queue.put("Inactive")
-        time.sleep(600)  # Check every 10 minutes
+        time.sleep(200)  # Check every few minutes
 
 if __name__ == "__main__":
     threading.Thread(target=periodic_octoprint_check, daemon=True).start()
