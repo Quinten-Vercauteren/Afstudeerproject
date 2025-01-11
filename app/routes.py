@@ -8,6 +8,7 @@ import os
 from models import FilamentData, SessionLocal  # Import the FilamentData model and SessionLocal
 import shared_state
 from shared_state import get_printer_status, set_printer_status, get_servicing_state, toggle_servicing_state
+from auth import authenticate_user, create_user  # Import authentication functions
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY  # Replace with a real secret key
@@ -29,9 +30,10 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # Placeholder for actual authentication
-        if username == 'admin' and password == 'password':
-            flask_session['username'] = username
+        user = authenticate_user(username, password)
+        if user:
+            flask_session['username'] = user.username
+            flask_session['role'] = user.role
             return redirect(url_for('index'))
         else:
             return 'Invalid credentials', 401
@@ -41,6 +43,7 @@ def login():
 def logout():
     """Handle user logout."""
     flask_session.pop('username', None)
+    flask_session.pop('role', None)
     return redirect(url_for('login'))
 
 @app.route('/reinit_hx711', methods=['POST'])
@@ -92,6 +95,8 @@ def database():
     """Render the database page showing filament data."""
     if 'username' not in flask_session:
         return redirect(url_for('login'))
+    if flask_session['role'] not in ['admin', 'data_analyst', 'manager']:
+        return 'Access denied', 403
     
     # Retrieve all filament data from the database
     session = SessionLocal()
@@ -99,6 +104,16 @@ def database():
     session.close()
     
     return render_template('database.html', filament_data=filament_data)
+
+@app.route('/printer_control')
+def printer_control():
+    """Render the printer control panel page."""
+    if 'username' not in flask_session:
+        return redirect(url_for('login'))
+    if flask_session['role'] not in ['admin', 'printer_operator', 'manager']:
+        return 'Access denied', 403
+    
+    return render_template('index.html', servicing=shared_state.get_servicing_state())
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

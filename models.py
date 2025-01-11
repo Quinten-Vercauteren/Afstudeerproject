@@ -15,6 +15,13 @@ class FilamentData(Base):
     weight = Column(Integer)
     operation = Column(String)
 
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    role = Column(String, nullable=False)
+
 # Database connection setup
 DATABASE_USER_SECRET = "PyMariaDB123"
 DATABASE_URL = f"mariadb+mariadbconnector://python:{DATABASE_USER_SECRET}@localhost:3306/filament_weight"
@@ -30,6 +37,20 @@ def get_last_data(cur):
     cur.execute("SELECT time FROM filament_weight.filament_data ORDER BY time DESC LIMIT 1") # Get the time of the last row
     return cur.fetchone()[0] # Return the time of the last row
 
+def add_user(username, password, role):
+    """Add a new user to the database."""
+    session = SessionLocal()
+    user = User(username=username, password=password, role=role)
+    session.add(user)
+    session.commit()
+    session.close()
+
+def get_user(username):
+    """Retrieve a user from the database by username."""
+    session = SessionLocal()
+    user = session.query(User).filter_by(username=username).first()
+    session.close()
+    return user
 
 # Instantiate Connection
 try:

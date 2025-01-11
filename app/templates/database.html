@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='database.css') }}">
 </head>
 <body>
+    <div class="account-center">
+        <p>Logged in as: {{ session['username'] }}</p>
+        <form action="{{ url_for('logout') }}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
     <h1>Filament Data</h1>
     <table>
         <thead>
