@@ -8,6 +8,8 @@ GPIO.setwarnings(False)  # Suppress GPIO warnings
 
 hx = None
 
+# Define the GPIO pin for the red LED
+RED_LED_PIN = 17
 
 def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1497):
     """Initialize the HX711 sensor."""
@@ -18,6 +20,12 @@ def setup_hx711(data_pin=5, clock_pin=6, reference_unit=1497):
     hx.reset()
     hx.tare()
     return hx
+
+def setup_gpio():
+    """Setup GPIO pins."""
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(RED_LED_PIN, GPIO.OUT)
+    GPIO.output(RED_LED_PIN, GPIO.LOW)
 
 def reinit_hx711():
     """Reinitialize and tare the HX711 sensor."""
@@ -48,6 +56,10 @@ def get_filament_weight():
     try:
         weight = get_weight(hx)
         if weight is not None:
+            if weight < 100:
+                GPIO.output(RED_LED_PIN, GPIO.HIGH)  # Turn on the red LED
+            else:
+                GPIO.output(RED_LED_PIN, GPIO.LOW)   # Turn off the red LED
             return weight
         else:
             print("Error reading weight")
@@ -56,6 +68,7 @@ def get_filament_weight():
         clean_and_exit()
         return None
 
-# Initialize the HX711 sensor on startup
+# Initialize the HX711 sensor and GPIO on startup
 hx = setup_hx711()
+setup_gpio()
 time.sleep(1)

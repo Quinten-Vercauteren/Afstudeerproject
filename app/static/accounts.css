@@ -93,6 +93,45 @@ td {
     background-color: #e64a19;
 }
 
+/* Add user form styles */
+.add-user-container {
+    background-color: #3e3e4e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+}
+
+.add-user-container h2 {
+    color: #ff9800;
+    margin-bottom: 20px;
+}
+
+.add-user-container .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.add-user-container label {
+    flex: 1;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.add-user-container input[type="text"],
+.add-user-container input[type="password"],
+.add-user-container select {
+    flex: 2;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #2e2e3e;
+    color: #e0e0e0;
+}
+
 /* Navigation button styles */
 .nav-button {
     display: inline-block;
@@ -111,4 +150,34 @@ td {
 .nav-button:hover {
     background-color: #e68900;
     transform: translateY(-2px);
+}
+
+.add-button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: #45a049;
+}
+
+.remove-button {
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.remove-button:hover {
+    background-color: #e53935;
 }

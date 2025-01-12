@@ -135,5 +135,31 @@ def accounts():
     
     return render_template('accounts.html', users=users)
 
+@app.route('/add_user', methods=['POST'])
+def add_user_route():
+    """Add a new user."""
+    if 'username' not in flask_session or flask_session['role'] != 'admin':
+        return 'Access denied', 403
+    
+    username = request.form['username']
+    password = request.form['password']
+    role = request.form['role']
+    create_user(username, password, role)
+    return redirect(url_for('accounts'))
+
+@app.route('/remove_user/<int:user_id>', methods=['POST'])
+def remove_user_route(user_id):
+    """Remove a user."""
+    if 'username' not in flask_session or flask_session['role'] != 'admin':
+        return 'Access denied', 403
+    
+    session = SessionLocal()
+    user = session.query(User).filter_by(id=user_id).first()
+    if user:
+        session.delete(user)
+        session.commit()
+    session.close()
+    return redirect(url_for('accounts'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

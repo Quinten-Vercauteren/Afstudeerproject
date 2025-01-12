@@ -60,6 +60,7 @@ def db_trigger(current_status, printer_state):
             printer_state.inactiveSwitch = True
             if current_time - printer_state.last_insertion_time >= 100:
                 weight = get_filament_weight()
+                log_event(f"Current filament weight: {weight} grams")
                 operation = "Stopped printing"
                 save_weight_data(weight, operation)
                 printer_state.last_insertion_time = current_time
@@ -111,7 +112,7 @@ def monitor_hardware():
                 octoprint_status = check_octoprint_status()
                 print(f"OctoPrint status: {octoprint_status}")
                 if octoprint_status and get_printer_status()["status"] != octoprint_status:
-                    if octoprint_status == "Printing" or octoprint_status == "Printing from SD":
+                    if (octoprint_status == "Printing" or octoprint_status == "Printing from SD"):
                         set_printer_status({"status": "Printing"})
                         log_event(f"OctoPrint status: {octoprint_status}")
                     else:
