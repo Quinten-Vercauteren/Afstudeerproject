@@ -10,11 +10,18 @@
 </head>
 <body>
     <div class="account-center">
-        <p>Logged in as: Guest</p>
+        <p>Logged in as: {{ session['username'] }}</p>
         <form action="{{ url_for('logout') }}" method="post">
             <button type="submit">Logout</button>
         </form>
     </div>
+
+    {% if session['role'] == 'admin' %}
+    <a href="{{ url_for('database') }}" class="nav-button" style="top: 70px">Go to Database</a>
+    <a href="{{ url_for('accounts') }}" class="nav-button">Go to Account Center</a>
+    {% elif session['role'] == 'manager' %}
+    <a href="{{ url_for('database') }}" class="nav-button">Go to Database</a>
+    {% endif %}
 
     <div class="container">
         <h1>3D Printer Control Panel</h1>

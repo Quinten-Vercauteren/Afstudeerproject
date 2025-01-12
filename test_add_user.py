@@ -1,8 +1,11 @@
-from models import add_user, get_user
+from auth import create_user, authenticate_user
 
-# Test adding a new user
-add_user('admin', 'securepassword', 'admin')
+# Test creating a new user with the role of manager
+create_user('manager_user', 'securepassword', 'manager')
 
-# Retrieve and print the user to verify
-user = get_user('admin')
-print(f"Username: {user.username}, Role: {user.role}")
+# Test authenticating the user
+user = authenticate_user('manager_user', 'securepassword')
+if user:
+    print(f"Authenticated user: {user.username}, Role: {user.role}")
+else:
+    print("Authentication failed")

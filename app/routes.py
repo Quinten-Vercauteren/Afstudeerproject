@@ -5,7 +5,7 @@ import threading
 from utils import log_event
 from config import SECRET_KEY
 import os
-from models import FilamentData, SessionLocal  # Import the FilamentData model and SessionLocal
+from models import FilamentData, SessionLocal, User  # Import the FilamentData model, SessionLocal, and User
 import shared_state
 from shared_state import get_printer_status, set_printer_status, get_servicing_state, toggle_servicing_state
 from auth import authenticate_user, create_user  # Import authentication functions
@@ -22,11 +22,14 @@ def index():
     """Render the main control panel page."""
     if 'username' not in flask_session:
         return redirect(url_for('login'))
+    if flask_session['role'] == 'data_analyst':
+        return redirect(url_for('database'))
     return render_template('index.html', servicing=shared_state.get_servicing_state())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Handle user login."""
+    error = None
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -34,10 +37,12 @@ def login():
         if user:
             flask_session['username'] = user.username
             flask_session['role'] = user.role
+            if user.role == 'data_analyst':
+                return redirect(url_for('database'))
             return redirect(url_for('index'))
         else:
-            return 'Invalid credentials', 401
-    return render_template('login.html')
+            error = 'Invalid credentials. Please try again.'
+    return render_template('login.html', error=error)
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -114,6 +119,21 @@ def printer_control():
         return 'Access denied', 403
     
     return render_template('index.html', servicing=shared_state.get_servicing_state())
+
+@app.route('/accounts')
+def accounts():
+    """Render the accounts page showing all users and their roles."""
+    if 'username' not in flask_session:
+        return redirect(url_for('login'))
+    if flask_session['role'] != 'admin':
+        return 'Access denied', 403
+    
+    # Retrieve all users from the database
+    session = SessionLocal()
+    users = session.query(User).all()
+    session.close()
+    
+    return render_template('accounts.html', users=users)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

@@ -54,9 +54,58 @@ a {
     text-decoration: none;
     position: absolute;
     top: 20px;
-    right: 20px;
+    left: 20px;
 }
 
 a:hover {
     text-decoration: underline;
+}
+
+/* Account center styles */
+.account-center {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #2e2e3e;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-align: right;
+}
+
+.account-center p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.account-center button {
+    background-color: #ff5722;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.account-center button:hover {
+    background-color: #e64a19;
+}
+
+/* Navigation button styles */
+.nav-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff9800;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.nav-button:hover {
+    background-color: #e68900;
+    transform: translateY(-2px);
 }
