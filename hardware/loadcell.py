@@ -56,7 +56,7 @@ def get_filament_weight():
     try:
         weight = get_weight(hx)
         if weight is not None:
-            if weight < 100:
+            if weight < 300:
                 GPIO.output(RED_LED_PIN, GPIO.HIGH)  # Turn on the red LED
             else:
                 GPIO.output(RED_LED_PIN, GPIO.LOW)   # Turn off the red LED
