@@ -1,3 +1,11 @@
+# OpenCV Documentation: https://docs.opencv.org/
+# NumPy Documentation: https://numpy.org/doc/
+# Python Queue Documentation: https://docs.python.org/3/library/queue.html
+# Python Threading Documentation: https://docs.python.org/3/library/threading.html
+# Python Time Documentation: https://docs.python.org/3/library/time.html
+# Python OS Documentation: https://docs.python.org/3/library/os.html
+# Python Sys Documentation: https://docs.python.org/3/library/sys.html
+
 import cv2
 import numpy as np
 import time
@@ -8,6 +16,7 @@ import queue
 
 class Camera:
     def __init__(self, stream_url):
+        """Initialize the Camera object with a stream URL."""
         self.stream_url = stream_url
         self.camera = cv2.VideoCapture(self.stream_url)
         if not self.camera.isOpened():
@@ -15,6 +24,7 @@ class Camera:
         self.motion_detected = False
 
     def capture_frame(self):
+        """Capture a frame from the camera."""
         ret, frame = self.camera.read()
         if not ret:
             print("Error: Failed to capture frame.")
@@ -22,6 +32,7 @@ class Camera:
         return frame
 
     def release(self):
+        """Release the camera and destroy all OpenCV windows."""
         self.camera.release()
         cv2.destroyAllWindows()
 
@@ -34,6 +45,7 @@ state_cooldown = 30  # Cooldown time in seconds
 camera_motion_detected = False  # Add this global variable
 
 def update_camera_state():
+    """Update the camera state based on motion detection."""
     global motion_count, no_motion_start_time, motion_start_time, camera_motion_detected
 
     stream_url = "http://octoproject.local/webcam/?action=stream"

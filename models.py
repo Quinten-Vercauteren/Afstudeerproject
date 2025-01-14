@@ -1,9 +1,14 @@
-# Module Import
+# Documentation and sources:
+# SQLAlchemy: https://docs.sqlalchemy.org/
+# MariaDB: https://mariadb.com/kb/en/mariadb-python-connector/
+# Python: https://www.python.org/doc/
+
 import mariadb
 import sys
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from config import DATABASE_USER_SECRET, DATABASE_URL
 
 # SQLAlchemy setup
 Base = declarative_base()
@@ -23,8 +28,6 @@ class User(Base):
     role = Column(String, nullable=False)
 
 # Database connection setup
-DATABASE_USER_SECRET = "PyMariaDB123"
-DATABASE_URL = f"mariadb+mariadbconnector://python:{DATABASE_USER_SECRET}@localhost:3306/filament_weight"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

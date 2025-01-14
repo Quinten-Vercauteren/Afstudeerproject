@@ -1,8 +1,9 @@
-# Sources:
-# ChatGPT model: GPT-4 by OpenAI (03/12/2024)
-# Flask documentation: https://flask.palletsprojects.com/
-# OctoPrint API documentation: https://docs.octoprint.org/en/master/api/printer.html
-# Maria DB: https://mariadb.com/docs/server/connect/programming-languages/python/dml/
+# Documentation and sources:
+# Flask: https://flask.palletsprojects.com/
+# OctoPrint API: https://docs.octoprint.org/en/master/api/printer.html
+# MariaDB: https://mariadb.com/docs/server/connect/programming-languages/python/dml/
+# HX711: https://github.com/tatobari/hx711py
+# OpenCV: https://docs.opencv.org/
 
 from app.routes import app  # Import app from app/routes.py
 from hardware.loadcell import setup_hx711, get_filament_weight  # Import setup_hx711 and get_filament_weight

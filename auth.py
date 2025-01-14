@@ -1,4 +1,7 @@
-#File to handle authentication of users
+# Relevant documentation:
+# Werkzeug Security: https://werkzeug.palletsprojects.com/en/2.0.x/utils/#module-werkzeug.security
+
+# File to handle authentication of users
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import add_user, get_user

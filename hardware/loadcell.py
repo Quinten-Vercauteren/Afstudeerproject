@@ -1,3 +1,6 @@
+# Documentation Links:
+# HX711: https://github.com/tatobari/hx711py
+
 import time
 import sys
 sys.path.insert(0, '/home/Octo/projectdir/Afstudeerproject/hx711py')

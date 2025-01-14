@@ -4,3 +4,4 @@ config.py
 Detected_Motion.MP4
 state.json
 bfg.jar
+/..bfg-report/

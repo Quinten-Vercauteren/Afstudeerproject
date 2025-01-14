@@ -1,3 +1,8 @@
+# Documentation and sources:
+# JSON module: https://docs.python.org/3/library/json.html
+# Threading module: https://docs.python.org/3/library/threading.html
+# File handling: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
+
 import json
 import threading
 

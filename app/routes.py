@@ -1,3 +1,14 @@
+# Flask Application Routes
+
+# This module contains the route definitions for the Flask web application.
+
+# Relevant Documentation:
+# Flask: https://flask.palletsprojects.com/
+# SQLAlchemy: https://www.sqlalchemy.org/
+# Jinja2: https://jinja.palletsprojects.com/
+# Flask-Login: https://flask-login.readthedocs.io/
+
+
 from flask import Flask, render_template, redirect, url_for, request, session as flask_session, jsonify
 from hardware.loadcell import reinit_hx711, get_filament_weight  # Import get_filament_weight
 from hardware.camera import Camera, update_camera_state, camera_state_queue  # Import the updated camera module and camera_state_queue
@@ -11,7 +22,7 @@ from shared_state import get_printer_status, set_printer_status, get_servicing_s
 from auth import authenticate_user, create_user  # Import authentication functions
 
 app = Flask(__name__)
-app.secret_key = SECRET_KEY  # Replace with a real secret key
+app.secret_key = SECRET_KEY
 camera = Camera(stream_url="http://octoproject.local/webcam/?action=stream")  # Initialize with stream URL
 
 # Create a session
