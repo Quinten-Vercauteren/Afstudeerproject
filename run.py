@@ -60,7 +60,7 @@ def db_trigger(current_status, printer_state):
                 log_event("The printer started printing.")
         elif current_status != "Printing" and not printer_state.inactiveSwitch:
             printer_state.inactiveSwitch = True
-            if current_time - printer_state.last_insertion_time >= 100:
+            if current_time - printer_state.last_insertion_time >= 30:
                 weight = get_filament_weight()
                 log_event(f"Current filament weight: {weight} grams")
                 operation = "Stopped printing"
@@ -73,6 +73,13 @@ def save_weight_data(weight, operation):
     """Save the weight data in MariaDB."""
     time_str = time.strftime('%Y-%m-%d %H:%M:%S')  # Get current time in required format
     last_insertion_time_dt = get_last_data(cur)  # Get the last insertion time as a datetime object
+    
+    if last_insertion_time_dt is None:
+        # If the database is empty, insert the data directly
+        add_data(cur, time_str, weight, operation)
+        log_event(f"Weight data saved: {weight} grams, {operation}")
+        return
+    
     last_insertion_time = last_insertion_time_dt.timestamp()  # Convert to timestamp
     current_time = time.mktime(time.strptime(time_str, '%Y-%m-%d %H:%M:%S'))
     

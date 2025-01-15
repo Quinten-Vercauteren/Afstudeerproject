@@ -38,8 +38,11 @@ def add_data(cur, time, weight, operation):
                 (time, weight, operation))
 
 def get_last_data(cur):
-    cur.execute("SELECT time FROM filament_weight.filament_data ORDER BY time DESC LIMIT 1") # Get the time of the last row
-    return cur.fetchone()[0] # Return the time of the last row
+    cur.execute("SELECT MAX(time) FROM filament_data")
+    result = cur.fetchone()
+    if result and result[0]:
+        return result[0]  # Return the time of the last row
+    return None  # Return None if there are no rows
 
 def add_user(username, password, role):
     """Add a new user to the database."""
@@ -63,11 +66,11 @@ try:
       port=3306,
       user="python",
       password=DATABASE_USER_SECRET,  # Ensure the password is correct
+      database="filament_weight",  # Specify the database name
       autocommit=True)
 except mariadb.Error as e:
     print(f"Error connecting to the database: {e}")
     sys.exit(1)
-
 
 # Instantiate Cursor
 cur = conn.cursor()
