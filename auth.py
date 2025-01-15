@@ -1,6 +1,6 @@
-# Relevant documentation:
+# Documentation and sources:
 # Werkzeug Security: https://werkzeug.palletsprojects.com/en/2.0.x/utils/#module-werkzeug.security
-
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 # File to handle authentication of users
 
 from werkzeug.security import generate_password_hash, check_password_hash

@@ -1,5 +1,6 @@
-# Documentation Links:
+# Documentation and sources:
 # HX711: https://github.com/tatobari/hx711py
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 import time
 import sys

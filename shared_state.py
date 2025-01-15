@@ -2,6 +2,7 @@
 # JSON module: https://docs.python.org/3/library/json.html
 # Threading module: https://docs.python.org/3/library/threading.html
 # File handling: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 import json
 import threading

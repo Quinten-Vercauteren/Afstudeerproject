@@ -1,7 +1,7 @@
-# Sources:
-# ChatGPT model: OpenAI GPT-4 (03/12/2024)
+# Documentation and sources:
 # Requests library: https://docs.python-requests.org/en/latest/
 # OctoPrint API: https://docs.octoprint.org/en/master/api/
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 import requests
 

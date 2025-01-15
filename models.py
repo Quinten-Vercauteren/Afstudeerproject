@@ -2,6 +2,7 @@
 # SQLAlchemy: https://docs.sqlalchemy.org/
 # MariaDB: https://mariadb.com/kb/en/mariadb-python-connector/
 # Python: https://www.python.org/doc/
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 import mariadb
 import sys

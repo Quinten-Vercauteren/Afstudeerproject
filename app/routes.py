@@ -2,11 +2,12 @@
 
 # This module contains the route definitions for the Flask web application.
 
-# Relevant Documentation:
+# Documentation and sources:
 # Flask: https://flask.palletsprojects.com/
 # SQLAlchemy: https://www.sqlalchemy.org/
 # Jinja2: https://jinja.palletsprojects.com/
 # Flask-Login: https://flask-login.readthedocs.io/
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 
 from flask import Flask, render_template, redirect, url_for, request, session as flask_session, jsonify

@@ -1,5 +1,5 @@
 # Documentation and sources:
-# ChatGPT model: OpenAI GPT-4 (03/12/2024)
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 # Python datetime module: https://docs.python.org/3/library/datetime.html
 
 import logging

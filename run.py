@@ -4,6 +4,7 @@
 # MariaDB: https://mariadb.com/docs/server/connect/programming-languages/python/dml/
 # HX711: https://github.com/tatobari/hx711py
 # OpenCV: https://docs.opencv.org/
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 from app.routes import app  # Import app from app/routes.py
 from hardware.loadcell import setup_hx711, get_filament_weight  # Import setup_hx711 and get_filament_weight

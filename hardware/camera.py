@@ -1,3 +1,4 @@
+# Documentation and sources:
 # OpenCV Documentation: https://docs.opencv.org/
 # NumPy Documentation: https://numpy.org/doc/
 # Python Queue Documentation: https://docs.python.org/3/library/queue.html
@@ -5,6 +6,7 @@
 # Python Time Documentation: https://docs.python.org/3/library/time.html
 # Python OS Documentation: https://docs.python.org/3/library/os.html
 # Python Sys Documentation: https://docs.python.org/3/library/sys.html
+# ChatGPT model: OpenAI GPT-4 (2024) - https://chatgpt.com/
 
 import cv2
 import numpy as np
